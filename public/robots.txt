@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://yourdomain.com/public/sitemap.xml
+
+# Block admin area
+Disallow: /admin/
+
+# Block uploads directory browsing
+Disallow: /uploads/

@@ -1,0 +1,48 @@
+# Environment
+.env
+.env.local
+.env.*.local
+
+# PHP dependencies
+/vendor/
+
+# Node dependencies
+/node_modules/
+
+# Uploaded files (user content) - do not commit
+/uploads/
+/public/uploads/
+
+# IDE / Editor
+/.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs and cache
+/logs/
+/cache/
+*.log
+*.cache
+phpunit.result.cache
+
+# Composer / build
+composer.phar
+
+# Temporary files
+*.tmp
+*.swp
+
+# Source maps (if generated locally)
+/public/assets/css/*.map
+/public/assets/js/*.map
+
+# Sensitive helper - remove after use
+/create_admin.php
+
+# XAMPP / Windows
+xampp-control.ini
