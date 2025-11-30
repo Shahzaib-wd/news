@@ -142,10 +142,7 @@ CREATE TABLE IF NOT EXISTS rate_limits (
     INDEX idx_last_attempt (last_attempt)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Insert Default Admin User (username: admin, password: Admin@123456)
--- Password hash for 'Admin@123456'
-INSERT INTO users_admin (username, password_hash, email) VALUES 
-('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin@globalinsights.com');
+
 
 -- Insert Sample Categories
 INSERT INTO categories (name, slug, description) VALUES
