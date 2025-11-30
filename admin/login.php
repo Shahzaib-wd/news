@@ -99,13 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </a>
                     </div>
                     
-                    <div class="mt-4 p-3 bg-light rounded">
-                        <small class="text-muted">
-                            <strong>Default Login:</strong><br>
-                            Username: <code>admin</code><br>
-                            Password: <code>Admin@123456</code>
-                        </small>
-                    </div>
+
                 </div>
             </div>
         </div>
