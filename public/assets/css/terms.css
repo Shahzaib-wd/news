@@ -1,0 +1,23 @@
+
+        body { font-family: Arial, sans-serif; background: #f8f9fa; color: #333; }
+        .terms-hero {
+            min-height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: url('assets/images/terms-hero.jpg') center/cover no-repeat;
+            color: #fff;
+        }
+        .terms-hero h1 { font-size: 3rem; font-weight: bold; }
+        .terms-container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-top: 30px;
+            line-height: 1.7;
+        }
+        .terms-container h2 { margin-top: 25px; }
+        .terms-container a { color: #0d6efd; text-decoration: none; }
+        .terms-container a:hover { text-decoration: underline; }
+        footer { background: #222; color: #fff; padding: 20px 0; text-align: center; margin-top: 50px; }

@@ -215,3 +215,11 @@ function shareOnSocial(platform, url, title) {
         window.open(shareUrl, '_blank', 'width=600,height=400');
     }
 }
+
+
+document.addEventListener("DOMContentLoaded", function() {
+    const flash = document.querySelector('.flash-message');
+    if (flash) {
+        setTimeout(() => flash.style.display = 'none', 5000);
+    }
+});

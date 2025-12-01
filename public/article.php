@@ -8,6 +8,11 @@ require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/functions.php';
 
+// Start session for CSRF + visitor tracking
+session_name(SESSION_NAME);
+session_start();
+setVisitorCookie();
+
 $db = getDB();
 
 // Get article slug from URL
@@ -58,69 +63,83 @@ $comments_stmt = $db->prepare("
 $comments_stmt->execute([$article['id']]);
 $comments = $comments_stmt->fetchAll();
 
-// Handle comment submission
+// =====================
+// HANDLE COMMENT SUBMISSION
+// =====================
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_comment'])) {
-    if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
-        setFlash('error', 'Invalid security token');
-        redirect(getArticleURL($slug) . '#comments-section');
+
+    try {
+        // CSRF Validation
+        if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
+            throw new Exception('Invalid security token.');
+        }
+
+        // Rate limiting
+        if (!checkRateLimit('comment', RATE_LIMIT_COMMENTS)) {
+            throw new Exception('Too many comments. Please wait before commenting again.');
+        }
+
+        $name = trim($_POST['name'] ?? 'Anonymous');
+        $content = trim($_POST['content'] ?? '');
+
+        // Validation
+        if (strlen($content) < 10) {
+            throw new Exception('Comment must be at least 10 characters long.');
+        }
+        if (strlen($content) > 1000) {
+            throw new Exception('Comment must not exceed 1000 characters.');
+        }
+
+        // Spam Detection
+        $spam = false;
+        $spam_patterns = [
+            '/viagra|casino|free money/i',
+            '/(http|www|\.(com|net|org))/i'
+        ];
+        foreach ($spam_patterns as $pattern) {
+            if (preg_match($pattern, $content)) {
+                $spam = true;
+                break;
+            }
+        }
+        $status = $spam ? 'spam' : (COMMENTS_AUTO_APPROVE ? 'approved' : 'pending');
+
+        // Insert comment
+        $insert_stmt = $db->prepare("
+            INSERT INTO comments (article_id, name, content, ip_address, status)
+            VALUES (?, ?, ?, ?, ?)
+        ");
+        $insert_stmt->execute([
+            $article['id'],
+            htmlspecialchars($name, ENT_QUOTES, 'UTF-8'),
+            htmlspecialchars($content, ENT_QUOTES, 'UTF-8'),
+            getClientIP(),
+            $status
+        ]);
+
+        // Flash message for user
+        $msg = ($status === 'approved') 
+                ? 'Comment posted successfully!' 
+                : 'Comment submitted and awaiting moderation.';
+        setFlash('success', $msg);
+
+    } catch (Exception $e) {
+        error_log('Comment submission error: ' . $e->getMessage());
+        setFlash('error', $e->getMessage());
     }
-    
-    if (!checkRateLimit('comment', RATE_LIMIT_COMMENTS)) {
-        setFlash('error', 'Too many comments. Please wait before commenting again.');
-        redirect(getArticleURL($slug) . '#comments-section');
-    }
-    
-    $name = trim($_POST['name'] ?? 'Anonymous');
-    $content = trim($_POST['content'] ?? '');
-    
-    // Validate
-    if (empty($content) || strlen($content) < 10) {
-        setFlash('error', 'Comment must be at least 10 characters long');
-        redirect(getArticleURL($slug) . '#comments-section');
-    }
-    
-    if (strlen($content) > 1000) {
-        setFlash('error', 'Comment must not exceed 1000 characters');
-        redirect(getArticleURL($slug) . '#comments-section');
-    }
-    
-    // Basic spam check (very simple)
-    if (preg_match('/(http|www|\.com|\.net)/i', $content)) {
-        $status = 'spam';
-    } else {
-        $status = COMMENTS_AUTO_APPROVE ? 'approved' : 'pending';
-    }
-    
-    // Insert comment
-    $insert_stmt = $db->prepare("
-        INSERT INTO comments (article_id, name, content, ip_address, status)
-        VALUES (?, ?, ?, ?, ?)
-    ");
-    $insert_stmt->execute([
-        $article['id'],
-        htmlspecialchars($name, ENT_QUOTES, 'UTF-8'),
-        htmlspecialchars($content, ENT_QUOTES, 'UTF-8'),
-        getClientIP(),
-        $status
-    ]);
-    
-    if ($status === 'approved') {
-        setFlash('success', 'Comment posted successfully!');
-    } else {
-        setFlash('success', 'Comment submitted and awaiting moderation.');
-    }
-    
+
     redirect(getArticleURL($slug) . '#comments-section');
 }
 
-// SEO Meta
+// =====================
+// SEO & OpenGraph
+// =====================
 $page_title = $article['title'];
 $meta_description = $article['meta_description'] ?: truncate($article['subtitle'], 160);
 $canonical_url = getArticleURL($article['slug']);
 $article_url = getArticleURL($article['slug']);
 $article_image = BASE_URL . '/' . UPLOADS_URL . '/' . $article['featured_image'];
 
-// Open Graph
 $og_type = 'article';
 $og_title = $article['title'];
 $og_description = $meta_description;
@@ -139,18 +158,8 @@ $article_schema = json_encode([
     'image' => $article_image,
     'datePublished' => date('c', strtotime($article['published_at'])),
     'dateModified' => date('c', strtotime($article['updated_at'])),
-    'author' => [
-        '@type' => 'Person',
-        'name' => $article['author']
-    ],
-    'publisher' => [
-        '@type' => 'Organization',
-        'name' => SITE_NAME,
-        'logo' => [
-            '@type' => 'ImageObject',
-            'url' => BASE_URL . '/public/assets/images/logo.png'
-        ]
-    ]
+    'author' => ['@type'=>'Person','name'=>$article['author']],
+    'publisher'=>['@type'=>'Organization','name'=>SITE_NAME,'logo'=>['@type'=>'ImageObject','url'=>BASE_URL.'/public/assets/images/logo.png']]
 ], JSON_UNESCAPED_SLASHES);
 
 include __DIR__ . '/../templates/header.php';
@@ -265,6 +274,13 @@ include __DIR__ . '/../templates/header.php';
                 <!-- Comments Section -->
                 <div class="comments-section" id="comments-section">
                     <h3><i class="bi bi-chat-dots"></i> Comments (<?= count($comments) ?>)</h3>
+
+                    <!-- Flash Messages -->
+                    <?php if ($flash = getFlash()): ?>
+                        <div class="alert alert-<?= e($flash['type']) ?>">
+                            <?= e($flash['message']) ?>
+                        </div>
+                    <?php endif; ?>
 
                     <!-- Comment Form -->
                     <div class="comment-form">

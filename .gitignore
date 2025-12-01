@@ -2,26 +2,40 @@
 .env
 .env.local
 .env.*.local
+.env.example.bak
+
+# Sensitive Configuration Files
+config.local.php
+settings.local.php
+database.local.php
 
 # PHP dependencies
 /vendor/
 
 # Node dependencies
 /node_modules/
+package-lock.json
+yarn.lock
 
 # Uploaded files (user content) - do not commit
 /uploads/
 /public/uploads/
+/public/assets/images/uploads/
 
 # IDE / Editor
 /.idea/
 .vscode/
 *.sublime-project
 *.sublime-workspace
+*.swp
+*.swo
+*~
 
 # OS files
 .DS_Store
 Thumbs.db
+.AppleDouble
+.LSOverride
 
 # Logs and cache
 /logs/
@@ -29,20 +43,50 @@ Thumbs.db
 *.log
 *.cache
 phpunit.result.cache
+debug.log
 
 # Composer / build
 composer.phar
+composer.lock
 
 # Temporary files
 *.tmp
-*.swp
+*.bak
+.tmp
 
 # Source maps (if generated locally)
 /public/assets/css/*.map
 /public/assets/js/*.map
 
-# Sensitive helper - remove after use
+# Sensitive files - remove after use
 /create_admin.php
+setup.php
+install.php
+
+# Database files
+*.sql
+*.sqlite
+*.sqlite3
+*.db
+
+# Session files
+sessions/
+*.sess
+
+# Certificates & Keys
+*.pem
+*.key
+*.crt
 
 # XAMPP / Windows
 xampp-control.ini
+.htaccess.local
+
+# Testing
+coverage/
+.phpunit.result.cache
+
+# Build outputs
+dist/
+build/
+

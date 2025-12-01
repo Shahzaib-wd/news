@@ -81,36 +81,65 @@ $categories = $categories_stmt->fetchAll();
     
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="<?= ASSETS_URL ?>/images/favicon.png">
+    
+    <!-- Dropdown Hover CSS -->
+    <style>
+        .navbar .nav-item.dropdown:hover .dropdown-menu {
+            display: block;
+        }
+        .navbar .dropdown-toggle::after {
+            transition: transform 0.3s ease;
+        }
+        .navbar .dropdown-toggle[aria-expanded="true"]::after {
+            transform: rotate(180deg);
+        }
+    </style>
 </head>
 <body>
     <!-- Header -->
-    <header class="sticky-top bg-white border-bottom">
-        <nav class="navbar navbar-expand-lg navbar-light">
+    <header class="sticky-top bg-white border-bottom shadow-sm">
+        <nav class="navbar navbar-expand-lg navbar-light py-3">
             <div class="container">
                 <a class="navbar-brand fw-bold text-primary fs-4" href="<?= BASE_URL ?>/public/">
                     <i class="bi bi-globe2"></i> <?= e(SITE_NAME) ?>
                 </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item">
-                            <a class="nav-link" href="<?= BASE_URL ?>/public/">Home</a>
+                            <a class="nav-link" href="<?= BASE_URL ?>/public/">
+                                <i class="bi bi-house-door"></i> Home
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="<?= BASE_URL ?>/public/aboutus.php">
+                                <i class="bi bi-info-circle"></i> About Us
+                            </a>
                         </li>
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="categoriesDropdown" role="button" data-bs-toggle="dropdown">
-                                Categories
+                            <a class="nav-link dropdown-toggle" href="#" id="categoriesDropdown" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                                <i class="bi bi-list"></i> Categories
                             </a>
-                            <ul class="dropdown-menu">
-                                <?php foreach ($categories as $cat): ?>
-                                    <li><a class="dropdown-item" href="<?= getCategoryURL($cat['slug']) ?>"><?= e($cat['name']) ?></a></li>
-                                <?php endforeach; ?>
+                            <ul class="dropdown-menu" aria-labelledby="categoriesDropdown">
+                                <?php if (!empty($categories)): ?>
+                                    <?php foreach ($categories as $cat): ?>
+                                        <li><a class="dropdown-item" href="<?= getCategoryURL($cat['slug']) ?>"><?= e($cat['name']) ?></a></li>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <li><span class="dropdown-item disabled">No categories found</span></li>
+                                <?php endif; ?>
                             </ul>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="<?= BASE_URL ?>/public/search.php">
                                 <i class="bi bi-search"></i> Search
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="<?= BASE_URL ?>/public/contactus.php">
+                                <i class="bi bi-envelope"></i> Contact
                             </a>
                         </li>
                     </ul>
