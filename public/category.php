@@ -35,7 +35,7 @@ $total_pages = ceil($total_articles / ARTICLES_PER_PAGE);
 
 // Get articles
 $articles_stmt = $db->prepare("
-    SELECT a.*, (SELECT COUNT(*) FROM likes WHERE article_id = a.id) as like_count
+    SELECT a.*
     FROM articles a
     WHERE a.category_id = ? AND a.status = 'published'
     ORDER BY a.published_at DESC
@@ -67,7 +67,6 @@ include __DIR__ . '/../templates/header.php';
                         <p class="card-text"><?= truncate($article['subtitle'], 100) ?></p>
                         <div class="article-meta">
                             <span><i class="bi bi-calendar3"></i> <?= formatDate($article['published_at'], 'M j') ?></span>
-                            <span><i class="bi bi-heart"></i> <?= $article['like_count'] ?></span>
                         </div>
                     </div>
                 </div>

@@ -18,8 +18,7 @@ if (!empty($query)) {
         try {
             $search_term = "%{$query}%";
             $stmt = $db->prepare("
-                SELECT a.*, c.name as category_name, c.slug as category_slug,
-                       (SELECT COUNT(*) FROM likes WHERE article_id = a.id) as like_count
+                SELECT a.*, c.name as category_name, c.slug as category_slug
                 FROM articles a
                 LEFT JOIN categories c ON a.category_id = c.id
                 WHERE a.status = 'published' 
@@ -85,7 +84,6 @@ include __DIR__ . '/../templates/header.php';
                                 <p class="card-text"><?= truncate($article['subtitle'], 120) ?></p>
                                 <div class="article-meta">
                                     <span><i class="bi bi-calendar3"></i> <?= formatDate($article['published_at'], 'M j, Y') ?></span>
-                                    <span><i class="bi bi-heart"></i> <?= $article['like_count'] ?></span>
                                 </div>
                             </div>
                         </div>

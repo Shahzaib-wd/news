@@ -21,8 +21,7 @@ $total_pages = ceil($total_articles / ARTICLES_PER_PAGE);
 
 // Get featured article
 $featured_stmt = $db->prepare("
-    SELECT a.*, c.name as category_name, c.slug as category_slug,
-           (SELECT COUNT(*) FROM likes WHERE article_id = a.id) as like_count
+    SELECT a.*, c.name as category_name, c.slug as category_slug
     FROM articles a
     LEFT JOIN categories c ON a.category_id = c.id
     WHERE a.status = 'published' AND a.is_featured = 1
@@ -34,8 +33,7 @@ $featured = $featured_stmt->fetch();
 
 // Get articles for listing (excluding featured)
 $articles_stmt = $db->prepare("
-    SELECT a.*, c.name as category_name, c.slug as category_slug,
-           (SELECT COUNT(*) FROM likes WHERE article_id = a.id) as like_count
+    SELECT a.*, c.name as category_name, c.slug as category_slug
     FROM articles a
     LEFT JOIN categories c ON a.category_id = c.id
     WHERE a.status = 'published' " . ($featured ? "AND a.id != ?" : "") . "
@@ -53,12 +51,11 @@ $articles = $articles_stmt->fetchAll();
 
 // Get trending articles for sidebar
 $trending_stmt = $db->prepare("
-    SELECT a.*, c.name as category_name,
-           (SELECT COUNT(*) FROM likes WHERE article_id = a.id) as like_count
+    SELECT a.*, c.name as category_name
     FROM articles a
     LEFT JOIN categories c ON a.category_id = c.id
     WHERE a.status = 'published'
-    ORDER BY a.views DESC, like_count DESC
+    ORDER BY a.views DESC
     LIMIT 5
 ");
 $trending_stmt->execute();
@@ -123,7 +120,6 @@ include __DIR__ . '/../templates/header.php';
                                 <p class="card-text"><?= truncate($article['subtitle'], 100) ?></p>
                                 <div class="article-meta">
                                     <span><i class="bi bi-calendar3"></i> <?= formatDate($article['published_at'], 'M j, Y') ?></span>
-                                    <span><i class="bi bi-heart"></i> <?= $article['like_count'] ?></span>
                                     <span><i class="bi bi-eye"></i> <?= number_format($article['views']) ?></span>
                                 </div>
                             </div>

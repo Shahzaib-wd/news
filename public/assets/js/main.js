@@ -2,40 +2,6 @@
  * Global Insights - Main JavaScript
  */
 
-// Like Article Function
-function likeArticle(articleId) {
-    const button = document.getElementById('like-button');
-    const countSpan = document.getElementById('like-count');
-    
-    // Disable button during request
-    button.disabled = true;
-    
-    fetch('/public/api/like.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: `article_id=${articleId}&csrf_token=${getCsrfToken()}`
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            countSpan.textContent = data.like_count;
-            button.classList.add('liked');
-            button.querySelector('.like-text').textContent = 'Liked';
-        } else {
-            alert(data.message || 'Failed to like article');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('An error occurred. Please try again.');
-    })
-    .finally(() => {
-        button.disabled = false;
-    });
-}
-
 // Copy Link Function
 function copyLink(url) {
     navigator.clipboard.writeText(url).then(() => {

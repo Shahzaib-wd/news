@@ -50,10 +50,6 @@ $tags_stmt = $db->prepare("
 $tags_stmt->execute([$article['id']]);
 $tags = $tags_stmt->fetchAll();
 
-// Get like count and check if user liked
-$like_count = getArticleLikes($article['id']);
-$has_liked = hasUserLiked($article['id']);
-
 // Get approved comments
 $comments_stmt = $db->prepare("
     SELECT * FROM comments
@@ -215,16 +211,6 @@ include __DIR__ . '/../templates/header.php';
 
                 <!-- Article Actions -->
                 <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
-                    <div>
-                        <button id="like-button" 
-                                class="like-button <?= $has_liked ? 'liked' : '' ?>" 
-                                onclick="likeArticle(<?= $article['id'] ?>)"
-                                <?= $has_liked ? 'disabled' : '' ?>>
-                            <i class="bi bi-heart-fill"></i>
-                            <span class="like-text"><?= $has_liked ? 'Liked' : 'Like' ?></span>
-                            (<span id="like-count"><?= $like_count ?></span>)
-                        </button>
-                    </div>
                     <div class="share-buttons">
                         <a href="<?= $share_links['facebook'] ?>" target="_blank" class="share-btn share-btn-facebook">
                             <i class="bi bi-facebook"></i> Share

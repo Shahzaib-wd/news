@@ -16,7 +16,6 @@ $stats = [
     'total_comments' => $db->query("SELECT COUNT(*) FROM comments")->fetchColumn(),
     'pending_comments' => $db->query("SELECT COUNT(*) FROM comments WHERE status = 'pending'")->fetchColumn(),
     'total_views' => $db->query("SELECT SUM(views) FROM articles")->fetchColumn(),
-    'total_likes' => $db->query("SELECT COUNT(*) FROM likes")->fetchColumn(),
 ];
 
 // Recent articles
@@ -52,14 +51,6 @@ include __DIR__ . '/includes/header.php';
             <div class="card-body">
                 <h3><?= number_format($stats['total_views']) ?></h3>
                 <p class="mb-0">Total Views</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card text-white bg-info">
-            <div class="card-body">
-                <h3><?= number_format($stats['total_likes']) ?></h3>
-                <p class="mb-0">Total Likes</p>
             </div>
         </div>
     </div>
